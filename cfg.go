@@ -16,6 +16,7 @@ import (
  */
 type CFG struct {
   Datastorage string  `yaml:"datastorage"`
+  PidFile string `yaml:"pid"`
   Interval int     `yaml:"interval"`
   BinCount int `yaml:"bincount"`
   Dirs     map[string]_Dirs
@@ -49,7 +50,8 @@ func (cfg *CFG) FreeSize(watch string) (d int64){
  * reading configuration from a yaml file
  */
 func GetCfg(filename string) (cfg *CFG) {
-  cfg = new(CFG)
+  cfg= new(CFG)
+	cfg.PidFile="keepfree.pid"
   cfg.BinCount=2048
   cfg.Interval=10
   data, err := ioutil.ReadFile(filename)
@@ -61,4 +63,18 @@ func GetCfg(filename string) (cfg *CFG) {
     log.Fatal(err)
   }
   return
+}
+
+func (cfg *CFG)PrintCfg(){
+  fmt.Println("current keepfree configuration")
+  fmt.Println("data stored at "+cfg.Datastorage)
+  fmt.Println("pid is stored at "+cfg.PidFile)
+  fmt.Printf("checking disk space at interval of %d seconds\n",cfg.Interval)
+  fmt.Printf("number of bins for file date storage %d\n",cfg.BinCount)
+  for d,dd:= range cfg.Dirs {
+    fmt.Println("checking "+d+" for space of "+dd.Free+ " by looking at:")
+      for _,s:=range dd.Scan {
+        fmt.Println(" - "+s)
+      }
+  }
 }
